@@ -30,6 +30,6 @@ runs:
           if [[ -z "$(grep -E "^$releaseTag\$" sandbox-tags.txt)" ]]
           then
             echo "Deleting $releaseTag"
-            # aws ecr delete-tag
+            aws ecr batch-delete-image --registry-id="${{ steps.registry.outputs.id }}" --repository-name ${{ inputs.ecr-image }} --image-ids "imageTag=$releaseTag"
           fi
         done
