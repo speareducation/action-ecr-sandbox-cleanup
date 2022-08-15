@@ -17,6 +17,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.myKeySecret }}
           AWS_REGION: us-east-1
         with:
-          ecr-image: 000000000000.dkr.ecr.us-east-1.amazonaws.com/my-image
+          ecr-image: my-image
+          ecr-domain: 000000000000.dkr.ecr.us-east-1.amazonaws.com
 ```
 
