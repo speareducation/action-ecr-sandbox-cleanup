@@ -26,7 +26,7 @@ runs:
         ecrTags=$(aws ecr list-images --registry-id ${{ steps.registry.outputs.id }} --repository-name=${{ inputs.ecr-image }} --filter tagStatus=TAGGED | jq -r '.imageIds[].imageTag' | grep -E '^sandbox-' | sort)
         for releaseTag in ${ecrTags}
         do
-          if [[ -z "$(grep -E "^$releaseTag\$" sandbox-tags.txt)" ]]
+          if [[ "$releaseTag" ~= "sandbox-latest" ]] && [[ -z "$(grep -E "^$releaseTag\$" sandbox-tags.txt)" ]]
           then
             echo "Deleting $releaseTag"
             # aws ecr delete-tag
