@@ -23,7 +23,7 @@ runs:
       run: |
         echo "ECR Image: ${{ inputs.ecr-image }}"
         echo "Valid Sandboxes:"
-        git ls-remote | (grep -o 'releases/sandbox/.*' || :) | sed 's|releases/sandbox/|sandbox-|g' | tee sandbox-tags.txt
+        git ls-remote | (grep -o 'releases/sandbox/.*' || true) | (sed 's|releases/sandbox/|sandbox-|g' || true) | tee sandbox-tags.txt
         echo "sandbox-latest" >> sandbox-tags.txt
         ecrTags=$(aws ecr list-images --registry-id ${{ steps.registry.outputs.id }} --repository-name=${{ inputs.ecr-image }} --filter tagStatus=TAGGED | jq -r '.imageIds[].imageTag' | grep -E '^sandbox-' | sort)
         for releaseTag in ${ecrTags}
