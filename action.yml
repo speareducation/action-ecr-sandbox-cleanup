@@ -21,18 +21,16 @@ runs:
     - name: Read Tags
       shell: bash
       run: |
-        set -x
-        echo "git ls-remote:"
-        git ls-remote
         echo "Sandbox Tags:"
         (git ls-remote | grep -o 'releases/sandbox/.*' | sed 's|releases/sandbox/|sandbox-|g') || true | tee sandbox-tags.txt
         echo "sandbox-latest" | tee -a sandbox-tags.txt
-        set +x
 
     - name: Clean up S3 path
       shell: bash
       run: |
-        ecrTags=$(aws ecr list-images --registry-id ${{ steps.registry.outputs.id }} --repository-name=${{ inputs.ecr-image }} --filter tagStatus=TAGGED | jq -r '.imageIds[].imageTag' | grep -E '^sandbox-' | sort)
+        echo "ECR Tags:"
+        ecrTags=$(aws ecr list-images --registry-id ${{ steps.registry.outputs.id }} --repository-name=${{ inputs.ecr-image }} --filter tagStatus=TAGGED | jq -r '.imageIds[].imageTag' | (grep -E '^sandbox-' || true) | sort)
+        echo "$ecrTags"
         for releaseTag in $ecrTags
         do
           if [[ -z "$(grep -E "^$releaseTag\$" sandbox-tags.txt)" ]]
