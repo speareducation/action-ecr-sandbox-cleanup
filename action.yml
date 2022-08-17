@@ -18,13 +18,20 @@ runs:
       shell: bash
       run: echo ::set-output name=id::$(echo "${{ inputs.ecr-domain }}" | cut -d. -f1)
 
+    - name: Read Tags
+      shell: bash
+      run: |
+        set -x
+        echo "git ls-remote:"
+        git ls-remote
+        echo "Sandbox Tags:"
+        (git ls-remote | grep -o 'releases/sandbox/.*' | sed 's|releases/sandbox/|sandbox-|g') || true | tee sandbox-tags.txt
+        echo "sandbox-latest" | tee -a sandbox-tags.txt
+        set +x
+
     - name: Clean up S3 path
       shell: bash
       run: |
-        echo "ECR Image: ${{ inputs.ecr-image }}"
-        echo "Valid Sandboxes:"
-        { git ls-remote | grep -o 'releases/sandbox/.*' | sed 's|releases/sandbox/|sandbox-|g' } || true | tee sandbox-tags.txt
-        echo "sandbox-latest" >> sandbox-tags.txt
         ecrTags=$(aws ecr list-images --registry-id ${{ steps.registry.outputs.id }} --repository-name=${{ inputs.ecr-image }} --filter tagStatus=TAGGED | jq -r '.imageIds[].imageTag' | grep -E '^sandbox-' | sort)
         for releaseTag in $ecrTags
         do
