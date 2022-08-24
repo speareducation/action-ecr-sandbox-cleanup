@@ -23,7 +23,7 @@ runs:
       run: |
         echo "Sandbox Tags:"
         (git ls-remote | grep -o 'releases/sandbox/.*' | sed 's|releases/sandbox/|sandbox-|g') || true | tee sandbox-tags.txt
-        echo "sandbox-latest" | tee -a sandbox-tags.txt
+        echo "sandbox-latest" >> sandbox-tags.txt
 
     - name: Clean up S3 path
       shell: bash
