@@ -21,9 +21,10 @@ runs:
     - name: Read Tags
       shell: bash
       run: |
-        echo "Sandbox Tags:"
-        (git ls-remote | grep -o 'releases/sandbox/.*' | sed 's|releases/sandbox/|sandbox-|g') || true | tee sandbox-tags.txt
+        (git ls-remote | grep -o 'releases/sandbox/.*' | sed 's|releases/sandbox/|sandbox-|g' || 1) > sandbox-tags.txt
         echo "sandbox-latest" >> sandbox-tags.txt
+        echo "Valid Sandbox Tags:"
+        cat sandbox-tags.txt
 
     - name: Clean up S3 path
       shell: bash
@@ -31,6 +32,7 @@ runs:
         echo "ECR Tags:"
         ecrTags=$(aws ecr list-images --registry-id ${{ steps.registry.outputs.id }} --repository-name=${{ inputs.ecr-image }} --filter tagStatus=TAGGED | jq -r '.imageIds[].imageTag' | (grep -E '^sandbox-' || true) | sort)
         echo "$ecrTags"
+        IFS=$'\n'
         for releaseTag in $ecrTags
         do
           if [[ -z "$(grep -E "^$releaseTag\$" sandbox-tags.txt)" ]]
@@ -39,3 +41,4 @@ runs:
             aws ecr batch-delete-image --registry-id="${{ steps.registry.outputs.id }}" --repository-name ${{ inputs.ecr-image }} --image-ids "imageTag=$releaseTag"
           fi
         done
+        unset IFS
