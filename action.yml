@@ -21,7 +21,7 @@ runs:
     - name: Read Tags
       shell: bash
       run: |
-        (git ls-remote | grep -o 'releases/sandbox/.*' | sed 's|releases/sandbox/|sandbox-|g' || 1) > sandbox-tags.txt
+        (git ls-remote | grep -o 'releases/sandbox/.*' | sed 's|releases/sandbox/|sandbox-|g' || true) > sandbox-tags.txt
         echo "sandbox-latest" >> sandbox-tags.txt
         echo "Valid Sandbox Tags:"
         cat sandbox-tags.txt
